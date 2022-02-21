@@ -1,7 +1,7 @@
 # 개발자가 반드시 정복해야할 객체 지향과 디자인 패턴
 
 ## :blue_book: 1. Reference
-- [개발자가 반드시 정복해야할 객체 지향과 디자인 패턴]()
+- [개발자가 반드시 정복해야할 객체 지향과 디자인 패턴](http://www.kyobobook.co.kr/product/detailViewKor.laf?mallGb=KOR&ejkGb=KOR&barcode=9788969090010)
 <br/>
 
 ## :pushpin: 2. Index
