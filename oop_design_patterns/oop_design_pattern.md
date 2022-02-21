@@ -25,5 +25,5 @@
 ## :couple: 3. Progress
 |Date|Topic|Attandent|
 |------|---|---|
-|2022-02-15|[~03.다형성과 추상 타입]()|한소희, 김정미, 김민석, 박준혁|
+|2022-02-15|[~03.다형성과 추상 타입](https://github.com/dheldh77/groupstudy_samsung_mechatronics_RnD/blob/master/oop_design_patterns/2022_02_15/2022_02_15.md)|한소희, 김정미, 김민석, 박준혁|
 |2022-02-22|[~05.설계 원칙: SOLID](https://github.com/dheldh77/groupstudy_samsung_mechatronics_RnD/blob/master/oop_design_patterns/2022_02_22/2022_02_22.md)||
