@@ -108,3 +108,108 @@
 - 다른 타입에 의존 한다는 것은 의존하는 타입에 변경이 발생할 때 연쇄적으로 변경될 가능성이 높다.
 - 의존이 순환해서 발생할 경우 다른 방법이 없는지 고민해야한다.
 - 순환 의존이 발생하지 않도록 하는 것이 의존 역전 원칙(DIP, Dependency Inversion Principle)
+
+### 1) 의존의 양면성
+
+```java
+public class Autenticator {
+	public boolean authenticate(String id, String pwd){
+		Member m = findMemberById(id);
+		if (m == null) return false;
+		
+		return m.equalPassword(pwd); // pwd가 m의 암호와 동일하면 True
+	}
+}
+
+public class AuthenticationHandler {
+	public void handlerRequest(String inputId, String InputPwd){
+		Authenticator auth = new Authenticator();
+		if (auth.authenticate(inputId, inputPwf){
+			// 아이디/암호 일치 처리
+		} else {
+			// 아이디/암호 일치하지 않을 떄 처리
+		}
+	}
+}
+```
+
+해당 코드는 간단한 로그인 처리 코드이다. AuthenticationHandler 클래스는 Authenticator 클래스에 의존하고 있기 때문에, Authenticator 클래스에 변경이 생기면 AuthenticationHandler 클래스도 영향을 받는다
+
+```java
+public class AuthenticationHandler {
+	public void handleRequest(String inputId, String inputPwd){
+		Authenticator auth = new Authenticator();
+		try {
+			auth.authenticate(inputId, inputPwd);
+			// 아이디/암호가 일치하는 경우의 처리 
+		} catch(MemberNotFoundException ex) {
+			// 아이디가 잘못된 경우의 처리
+		} catch(InvalidPasswordException ex) {
+			// 암호가 잘못된 경우의 처리
+		}
+	}
+}
+
+public class Authenticator {
+	public void authenticate(String id, String pwd){
+		Member m = findMemeberById(id);
+			if (m == null) throw new MemberNotFoudException();
+			if (!m.equalPassword(password)) throw new InvalidPasswordException();
+	}
+}
+```
+
+잘못된 아이디를 입력했는지 암호가 틀린 것인지 여부를 로그에 남겨달라는 요구 사항이 생겨났을 때, Authenticator 클래스의 authenticate() 메소드는 단순히 boolean값을 리턴하면 안된다. 따라서, AuthenticationHandler 클래스의 변경 요구로 인해 Authencator 클래스에도 변화가 발생하게 된다. 이는 의존이 상호간의 영향을 준다는 것이다.
+
+> 의존의 양면성
+> 
+- 한 클래스가 변경되면 클래스를 의존하고 있는 클래스에 영향을 준다.
+- 한 클래스의 요구가 변경되면 클래스가 의존하고 있는 타입에 영향을 준다.
+
+## 5. 캡슐화 (Encapsulation)
+
+- 객체 지향은 캡슐화를 통해 한 곳의 변화가 다른 곳에 미치는 영향을 최소화
+- 객체가 내부적으로 기능을 어떻게 구현하는지를 감추는 것
+- 이를 통해 내부의 기능 구현이 변경되더라도 그 기능을 사용하는 코드는 영향을 받지 않도록 함
+- 내부 구현 변경의 유연함을 주는 기법
+
+### 1) 절차 지향 방식 코드
+
+- 절차 지향 방식은 프로시저가 데이터에 직접적으로 접근
+- 이로인해 데이터의 변화에 코드들이 직접적인 영향을 받음
+- 요구 사항의 변화로 인해 데이터의 구조나 쓰임새가 변경되면 데이터를 사용하는 코드들도 연쇄적으로 수정
+
+### 2) 캡슐화를 위한 규칙
+
+- Tell, Don’t Ask
+- 데미테르의 법칙 (Law of Demeter)
+
+> Tell, Don’t Ask
+> 
+- 데이터를 물어보지 않고, 기능을 실행해 달라고 말하는 규칙
+- 기능 실행을 요청하는 방식으로 코드를 작성하다 보면, 자연스럽게 해당 기능을 어떻게 구현했는지 여부가 감춰짐
+
+> 데미테르의 법칙 (Law of Demeter)
+> 
+- 메서드에서 생성한 객체의 메서드만 호출
+- 파라미터로 받은 객체의 메서드만 호출
+- 필드로 참조하는 객체의 메서드만 호출
+
+[신문 배달부와 지갑](https://smjeon.dev/etc/law-of-demeter/)
+
+## 6. 객체 지향 설계 과정
+
+> 객체 지향 설계 과정
+> 
+1. 제공해야 할 기능을 찾고 또는 세분화하고, 그 기능을 알맞는 객체에 할당
+a. 기능을 구현하는데 필요한 데이터를 객체에 추가. 객체에 데이터를 먼저 추가하고 기능을 넣을 수 있음
+b. 기능을 최대한 캡슐화
+2. 객체 간에 어떻게 메시지를 주고 받을 지 결정
+3. 1번, 2번 과정을 개발하는 동안 지속적으로 반복
+
+> 객체 설계
+> 
+- 객체의 크기는 한 번에 완성되기 보다는 구현을 진행하는 과정에서 점진적으로 명확
+- 구현 과정에서 한 클래스에 여러 책임이 섞여 있다는 것을 알게 되면, 객체를 새로 만들어서 책임을 분리
+- 최초에 만든 설계가 완벽하지 않으며, 개발이 진행되면서 설계도 함께 변경
+- 설계를 할 때에는 변경되는 부분을 고려한 유연한 구조를 갖도록 노력
