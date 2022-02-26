@@ -213,3 +213,283 @@ b. 기능을 최대한 캡슐화
 - 구현 과정에서 한 클래스에 여러 책임이 섞여 있다는 것을 알게 되면, 객체를 새로 만들어서 책임을 분리
 - 최초에 만든 설계가 완벽하지 않으며, 개발이 진행되면서 설계도 함께 변경
 - 설계를 할 때에는 변경되는 부분을 고려한 유연한 구조를 갖도록 노력
+
+# Chapter 03. 다형성과 추상 타입
+
+- 객체 지향의 장점은 구현 변경의 유연함
+- 유연함을 얻을 수 있는 또 다른 방법은 ‘추상화’
+- ‘추상화’를 가능케 해주는 것이 ‘다형성’
+
+## 1. 상속 (Inheritance)
+
+- 한 타입을 그대로 사용하면서 구현을 추가할 수 있도록 해주는 방법
+- 상속 대상이 되는 클래스를 상위 클래스(super class) 또는 부모 클래스(parent class)라고 함
+- 상속을 받는 클래스를 하위 클래스(sub class) 또는 자식 클래스(child class)라고 함
+- 하위 클래스는 상위 클래스에 정의된 구현을 물려받음
+- 많은 언어에서 private 범위를 갖는 메서드나 필드를 제외한 나머지를 물려받을 수 있도록 하고 있음
+- 하위 클래스는 필요에 따라 상위 클래스에 정의된 메서드를 재정의 할 수 있는데 이를 오버라이딩(Overriding)이라고 함
+
+## 2. 다형성과 상속
+
+- 다형성(Polymorphism)은 한 객체가 여러 가지(poly) 모습(morph)을 갖는 것
+- 즉, 한 객체가 여러 타입을 가질 수 있다는 것
+- 상속을 통해 다형성을 구현
+
+### 1) 인터페이스 상속과 구현 상속
+
+- 다형성을 구현하기 위해 타입을 상속받는 방법을 사용하는데 타입 상속은 크게 ‘인터페이스 상속'과 ‘구현 상속'으로 구분
+
+> 인터페이스 상속
+> 
+- ‘인터페이스 상속'은 순전인 타입 정의만을 상속
+- 자바와 같이 클래스 다중 상속을 지원하지 않는 언어에서는 인터페이스를 이용해 객체가 다형성을 가짐
+
+> 구현 상속
+> 
+- ‘구현 상속'은 클래스 상속을 통해서 이루어짐
+- ‘구현 상속'은 보통 상위 클래스에 정의된 기능을 재사용하기 위한 목적
+- 클래스 상속은 구현을 재사용하면서 다형성도 함께 제공
+
+## 3. 추상 타입과 유연함
+
+- ‘추상화(abstraction)’는 데이터나 프로세스 등을 의미가 비슷한 개념이나 표현으로 정의하는 과정
+- 추상화된 타입은 오퍼레이션의 시그니처만 정의할 뿐 실제 구현을 제공하지는 못함(의미만 제공)
+
+### 1) 추상 타입과 실제 구현의 연결
+
+- 추상 타입과 실제 구현 클래스는 상속을 통해 연결
+- 즉, 구현 클래스가 추상 타입을 상속받는 방법으로 연결
+- 실제 구현을 제공하는 클래스는 콘크리트 클래스(Concrete class)라고 함
+
+### 2) 추상 타입을 이용한 구현 교체의 유연함
+
+- 예시를 통해 추상 타입을 이용한 구현 교체의 유연함을 알아보자
+
+```java
+public class FlowController {
+    public void process(){
+        // 파일로부터 데이터를 읽어옴
+        FileDataReader reader = new FileDataReader();
+        byte[] data = reader.read();
+
+        // 암호화
+        Encryptor encryptor = new Encryptor();
+        byte[] encrpyptedData = encryptor.encrpyt(data);
+
+        // 파일에 쓰기
+        FileDataWriter writer = new FileDataWriter();
+        writer.write(encrpyptedData)
+    }
+}
+```
+
+위 코드는 파일로부터 데이터를 읽어들어와 암호화 후 파일에 저장하는 프로그램이다. 해당 기능의 초기 요구 사항은 파일로부터 데이터를 읽어들이는 것이었지만 요구 사항이 소켓으로 데이터를 읽어들어올 수도 있다는 것이 추가 되었다면 코드는 아래와 같이 변할 것이다.
+
+```java
+public class FlowController {
+    private boolean useFile;
+
+    public FlowController(boolean useFile){
+        this.useFile = useFile;
+    }
+
+    public void process(){
+        byte[] data = null;
+
+        // 파일 또는 소켓으로부터 데이터를 읽어옴
+        if (useFile){
+            FileDataReader fileReader = new FileDataReader();
+            byte[] data = fileReader.read();
+        } else {
+            SocketDataReader socketReader = new SocketDataReader();
+            byte[] data = socketReader.read();
+        }
+
+        // 암호화
+        Encryptor encryptor = new Encryptor();
+        byte[] encrpyptedData = encryptor.encrpyt(data);
+
+        // 파일에 쓰기
+        FileDataWriter writer = new FileDataWriter();
+        writer.write(encrpyptedData)
+    }
+}
+```
+
+요구 사항의 변경으로 인해 비슷한 if-else 블록이 추가가 되었다. 추상화를 통해 제거해보자
+
+```java
+public interface ByteSource {
+    public byte[] read();
+    ...
+}
+
+public class FileDataReader implements ByteSource {
+    public byte[] read() {
+        ...
+    }
+}
+
+public class SocketDataReader implements ByteSource {
+    public byte[] read() {
+        ...
+    }
+}
+
+public class FlowController {
+    private boolean useFile;
+
+    public FlowController(boolean useFile){
+        this.useFile = useFile;
+    }
+
+    public void process(){
+        ByteSource source = null;
+
+        // 파일 또는 소켓으로부터 데이터를 읽어들이는 인스턴스 생성
+        if (useFile) source = new FileDataReader();
+        else source = new SocketDataReader();
+
+        // 데이터를 읽어들어옴
+        byte[] data = source.read();
+
+        // 암호화
+        Encryptor encryptor = new Encryptor();
+        byte[] encrpyptedData = encryptor.encrpyt(data);
+
+        // 파일에 쓰기
+        FileDataWriter writer = new FileDataWriter();
+        writer.write(encrpyptedData)
+    }
+}
+```
+
+파일 또는 소켓으로부터 데이터를 읽어들이는 책임을 ‘읽어들인다'라는 기능으로 ByteSource라는 인터페이스로 추상화하고 FlowController에서는 생성된 인스턴스와 관계없이 read() 함수를 실행할 수 있다.
+
+하지만, 콘크리트 클래스를 이용해 객체를 생성하는 부분이 if-else 블록으로 여전히 남아있기 때문에 해당 기능과 관련되어 요구 사항이 추가될수록 코드는 복잡해질 것이다.
+
+이 부분은 객체를 생성하는 책임을 별도의 클래스로 분리하게 되면 FlowController 클래스는 ‘~에서 읽어들인다’라는 기능의 요구사항이 변경되더라도 코드의 변경이 없을 것이다.
+
+```java
+public class FlowControlle {
+    public void process(){
+        // 인스턴스를 생성하는 책임을 ByteSourceFactory 클래스에서 구현
+        ByteSource source = ByteSourceFactory.getInstance().create();
+        // 데이터를 읽어들어옴
+        byte[] data = source.read();
+
+        // 암호화
+        Encryptor encryptor = new Encryptor();
+        byte[] encrpyptedData = encryptor.encrpyt(data);
+
+        // 파일에 쓰기
+        FileDataWriter writer = new FileDataWriter();
+        writer.write(encrpyptedData)
+    }
+}
+```
+
+위 예제를 통해 추상 타입을 이용한 구현 교체의 유연함을 확인해 보았다. 추상화는 공통된 개념을 도출해서 추상 타입을 정의해 주기도 하지만, 많은 책임을 가진 객체로부터 책임을 분리할 수 있게 해준다.
+
+### 3) 변화되는 부분을 추상화하기
+
+- 추상화를 잘 하려면 다양한 상황에서 코드를 작성하고 과정에서 유연한 설계를 만들어 보는 경험이 필요
+- 변화될 부분을 미리 예측해서 추상화하는 것은 어려운 일
+- 그렇기 때문에 변화되는 부분을 추상화하는 것부터 시작
+- 요구 사항이 바뀔 때 변화되는 부분은 이 후에도 변경될 가능성이 많기 때문에 추상화한다면 유연하게 대처 가능
+- 추상화를 하면 추상 타입을 사용하는 코드에 영향을 주지 않으면서 추상 타입의 실제 구현을 변경할 수 있음
+
+### 4) 인터페이스에 대고 프로그래밍하기
+
+- 실제 구현을 제공하는 콘크리트 클래스를 사용해서 프로그래밍하지 않고 기능을 정의한 인터페이스를 사용해 프로그래밍할 것
+- 인터페이스는 최초 설계에서 바로 도출되기 보다는, 요구 사항의 변화와 함께 점진적으로 도출
+- 즉, 인터페이스는 새롭게 발견된 추상 개념을 통해서 도출
+- 추상 타입을 사용하면 기존 코드를 건드리지 않으면서 콘크리트 클래스를 교체할 수 있음
+- ‘인터페이스에 대고 프로그래밍하기'는 추상화를 통한 유연함을 얻기 위한 규칙
+
+> 추상화의 유의점
+> 
+- 추상화를 통해 유연함을 얻는 과정에서 타입이 증가하고 구조가 복잡해지기 때문에 모든 곳에서 인터페이스를 사용하면 안됨
+- 과도한 추상화는 불필요하게 프로그램의 복잡도만 증가시킴
+- 인터페이스를 사용할 때는 ‘변화 가능성이 높은' 경우에만 적용
+
+### 5) 인터페이스는 인터페이스 사용자 입장에서 만들기
+
+- 인터페이스를 작성할 때에는 그 인터페이스를 사용하는 코드입장에서 작성
+
+```java
+public class FlowControlle {
+    public void process(){
+        // 인스턴스를 생성하는 책임을 ByteSourceFactory 클래스에서 구현
+        ByteSource source = ByteSourceFactory.getInstance().create();
+        // 데이터를 읽어들어옴
+        byte[] data = source.read();
+
+        // 암호화
+        Encryptor encryptor = new Encryptor();
+        byte[] encrpyptedData = encryptor.encrpyt(data);
+
+        // 파일에 쓰기
+        FileDataWriter writer = new FileDataWriter();
+        writer.write(encrpyptedData)
+    }
+}
+```
+
+- 위 코드 예시에서 인터페이스 명을 ‘ByteSource’라고 정의했는데 ‘FileDataReaderIF’라고 명명했을 때, FlowController 입장에서는 해당 인터페이스를 상속받은 클래스는 ‘데이터를 읽어들인다'라는 의미보다는 ‘파일에서 데이터를 읽어들인다'라는 의미로 해석
+- 따라서, 인터페이스를 의존하는 클래스의 입장에서 인터페이스의 이름을 지을 것
+
+### 6) 인터페이스와 테스트
+
+- 테스트 코드를 작성할 때, 실제 콘크리트 클래스 대신에 진짜처럼 행동하는 객체를 Mock(가짜, 모의) 객체라 함
+- Mock 객체를 사용함으로써 실제 사용할 콘크리트 클래스의 구현 없이 테스트할 수 있음
+- Mock 객체를 만드는 방법은 다양하게 존재하지만, 사용할 대상을 인터페이스로 추상화하면 좀 더 쉽게 Mock 객체를 만들 수 있게 됨
+- 이는 사용할 코드의 완성을 기다릴 필요 없이 내가 만든 코드를 먼저 빠르게 테스트할 수 있도록 해줌
+
+# Chapter 04. 재사용: 상속보단 조립
+
+## 1. 상속과 재사용
+
+- 상속은 기능을 확장할 수 있기 때문에 기능의 재사용이라는 장점이 있지만, 변경의 유연함이라는 측면에서 치명적인 단점을 가짐
+
+> 상속을 통한 재사용의 단점
+> 
+
+(1) 상위 클래스 변경의 어려움
+
+- 어떤 클래스를 상속받는 다는 것은 그 클래스를 의존하는 것.
+- 의존하는 클래스의 코드가 변경되면 영향을 받을수 있음
+- 상속 계층을 따라 상위 클래스의 변경이 하위 클래스에 영향을 준다.
+
+(2) 클래스의 불필요한 증가
+
+- 필요한 기능의 조합이 증가할수록 클래스의 개수는 함께 증가하고 구조가 복잡해진다.
+
+(3) 상속의 오용
+
+- 상속은 IS-A 관계가 성립할 때에만 사용해야 한다.
+- 서로 다른 책임을 갖고 있는 클래스의 구현을 재사용하기 위해 상속을 받게 되면 잘못된 사용으로 인한 문제점이 발생한다.
+
+## 2. 조립의 이용한 재사용
+
+- 객체 조립(Composition)은 여러 객체를 묶어서 더 복잡한 기능을 제공하는 객체를 만들어 내는 것
+- 객체 지향 언어에서 객체 조립은 보통 필드에서 다른 객체를 참조하는 방식으로 구현
+- 한 객체가 다른 객체를 조립해서 필드로 갖는다는 것은 다른 객체의 기능을 사용한다는 의미를 내포
+- 조립을 사용하면 상속을 잘못 사용해서 발생했던 문제가 제거(상위 클래스 변경의 어려움, 클래스의 불필요한 증가, 상속의 오용)
+- 또한 조립은 런타임에 조립 대상 객체를 교체할 수 있음
+
+> 상속보다는 객체 조립을 사용할 것
+> 
+- 상속을 사용하다 보면 변경의 관점에서 유연함이 떨어질 가능성이 높기 때문에 객체 조립을 먼저 고민할 것
+- 단, 조립의 단점은 런타임 구조가 복잡해지고 구현이 어렵다는 것
+
+## 3. ****위임(Delegation)****
+
+- 책임을 다른 객체에 넘긴다는 의미로 조립 방식을 이용해 위임을 구현
+- 위임은 조립과 마찬가지로 요청을 위임할 객체를 필드로 연결
+- 또는 메소드 안에서 객체를 새로 생성해서 요청을 전달해도 위임이란 의미에서 벗어나지 않음
+
+## 4. ****상속을 사용해야할 때****
+
+- 재사용이라는 관점이 아닌 기능의 확장이라는 관점에 적용
+- 명확한 IS-A 관계가 성립할 때 점진적으로 상위 클래스의 기능을 확장해나가기위해 적용
