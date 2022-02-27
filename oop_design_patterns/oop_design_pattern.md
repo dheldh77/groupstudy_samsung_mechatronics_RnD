@@ -14,7 +14,7 @@
 >
 > part 02. 설계 원칙 / DI와 서비스 로케이터
 >> - [x] 05. 설계 원칙: SOLID
->> - [ ] 06. DI(Dependency Injection)와 서비스 로케이터
+>> - [x] 06. DI(Dependency Injection)와 서비스 로케이터
 > <br/>
 >
 > part 03. 주요 디자인 패턴
