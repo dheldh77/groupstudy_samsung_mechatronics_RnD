@@ -326,7 +326,7 @@ public class VendingMachine {
 
 ### 2) 상태 패턴 적용하기
 
-![스크린샷 2022-03-06 오후 7.48.46.png](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/8da009a1-0b65-4073-add3-87b9d102d940/스크린샷_2022-03-06_오후_7.48.46.png)
+![State Pattern](https://github.com/dheldh77/groupstudy_samsung_mechatronics_RnD/blob/master/oop_design_patterns/2022_03_08/StatePattern.png)
 
 - 상태를 타입으로 분리하고, 각 상태 별로 알맞은 하위 타입을 구현
 - ‘상태 객체가 기능을 제공’
@@ -441,7 +441,7 @@ public class SelectableState implements State {
 > 데코레이터 패턴 설계
 > 
 
-![스크린샷 2022-03-06 오후 11.14.37.png](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/c628bdf5-520e-44bd-a628-80cc3d420f79/스크린샷_2022-03-06_오후_11.14.37.png)
+![Decorator Pattern](https://github.com/dheldh77/groupstudy_samsung_mechatronics_RnD/blob/master/oop_design_patterns/2022_03_08/DecoratorPattern.png)
 
 - 인터페이스는 기존 기능을 정의
 - Implementation 클래스는 인터페이스에서 정의한 기능을 구현
@@ -539,7 +539,7 @@ FileOut fileOut = new ZipOut(new EncrpytionOut(delegate));
 > 프록시 패턴 구조
 > 
 
-![스크린샷 2022-03-06 오후 11.54.37.png](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/8d3bfb32-b40e-4dc9-8d20-b0ecf287bd96/스크린샷_2022-03-06_오후_11.54.37.png)
+![Proxy Pattern 1](https://github.com/dheldh77/groupstudy_samsung_mechatronics_RnD/blob/master/oop_design_patterns/2022_03_08/ProxyPattern1.png)
 
 ### 2) 프록시 패턴 적용하기
 
@@ -552,7 +552,7 @@ FileOut fileOut = new ZipOut(new EncrpytionOut(delegate));
 > 설계 구조
 > 
 
-![스크린샷 2022-03-06 오후 11.55.51.png](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/dd245dda-9b60-42c3-b8ae-c0dbe12bf7f3/스크린샷_2022-03-06_오후_11.55.51.png)
+![Proxy Pattern 2](https://github.com/dheldh77/groupstudy_samsung_mechatronics_RnD/blob/master/oop_design_patterns/2022_03_08/ProxyPattern2.png)
 
 - Image 인터페이스는 이미지를 표현하는 기능에 대한 명세
 - ListUI는 Image 타입을 이용해 화면에 이미지를 출력
