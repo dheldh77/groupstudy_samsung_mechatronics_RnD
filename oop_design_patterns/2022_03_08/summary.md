@@ -273,3 +273,343 @@ transactionTemplate.execute(new TransactionCallback<String() {
 > 조립의 방식으로 템플릿 메서드를 사용할 때 단점
 > 
 - 훅 메서드와 같은 확장의 기능을 구현하기 복잡
+
+## 4. 상태(State) 패턴
+
+> 예제
+> 
+
+```java
+public class VendingMachine {
+    public static enum State { NOCOIN, SELECTABLE, SOLDOUT }
+
+    private State state = State.NOCOIN;
+
+    public void insertCoind(int coin) {
+        swtich(state) {
+        case NOCOIN:
+            increaseCoin(coin);
+            state = State.SELECTABLE;
+            break;
+        case SELECTABLE:
+            increaseCoin(coin);
+            break;
+        case SOLDOUT:
+            returnCoin();
+        }
+    }
+
+    public void select(int productId) {
+        switch(state) { 
+        case NOCOIN:
+            //do not anything
+            break;
+        case SELECTABLE:
+            provideProduct(productId);
+            decreaseCoin();
+            if (hasNoCoin())
+                state = State.NOCOIN;
+        case SOLDOUT:
+            // do not anything
+        }
+    }
+}
+```
+
+- 위 코드는 코인 상태에 따라 다른 동작을 하는 자판기 클래스
+
+> 문제점
+> 
+- 상태가 많아질수록 복잡해지는 조건문이 여러 코드에서 중복해서 출현
+- 코드 변경을 어렵게 만듬
+- “상태"에 따라 동일한 기능 요청의 처리를 다르게 해야함
+
+### 2) 상태 패턴 적용하기
+
+![스크린샷 2022-03-06 오후 7.48.46.png](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/8da009a1-0b65-4073-add3-87b9d102d940/스크린샷_2022-03-06_오후_7.48.46.png)
+
+- 상태를 타입으로 분리하고, 각 상태 별로 알맞은 하위 타입을 구현
+- ‘상태 객체가 기능을 제공’
+- 상태(State) 인터페이스는 모든 상태가 동일하게 적용 되는 기능을 명세
+- Context는 필드로 상태 객체를 가지며, 클라이언트로부터 기능 실행 요청을 받으면 상태 객체에 처리를 위임
+
+> Context
+> 
+
+```java
+public class VendingMachine {
+    private State state;
+
+    public VendingMachine() {
+        state = new NoCoinState();
+    }
+
+    public void insertCoing(int coin) {
+        state.increaseCoin(coin, this); // 상태 객체에 위임
+    }
+
+    public void select(int productId) {
+        state.select(productId, this); // 상태 객체에 위임
+    }
+
+    public void changeState(State newState) {
+        this.state = newState;
+    }
+}
+```
+
+- Context 클래스는 State 타입의 멤버 변수에 기능 실행의 책임을 위임
+- Context 클래스에 상태 객체 변경 메서드가 있는 것을 확인할 수 있음
+
+> State Interface
+> 
+
+```java
+public interface State {
+    void increaseCoint(int coin, VendingMachine vm);
+    void select(int productId, VendingMachine vm);
+}
+```
+
+- State 인터페이스에는 모든 상태에 동일하게 적용되는 기능에 대한 명세가 있음
+
+> State Class
+> 
+
+```java
+public class NoCoinState implements State {
+    @Override
+    public void increaseCoin(int coin, VendingMachine vm) {
+        vm.increaseCoin(coin);
+        vm.changeState(new SelectableState()); // 상태 변경
+    }
+
+    @Override
+    public void select(int productId, VendingMachine vm) {
+        SoundUtil.beep();
+    }
+}
+
+public class SelectableState implements State {
+    @Override
+    public void increaseCoin(int coin, VendingMachine vm) {
+        vm.increaseCoin(coin);
+    }
+
+    @Override
+    public void select(int productId, VendingMachine vm) {
+        vm.provoideProduct(productId);
+        vm.decreaseCoin();
+
+        if (vm.hasNoCoin())
+            vm.changeState(new NoCoinState());
+    }
+}
+```
+
+- 상태 클래스를 구현함으로써 기존 Context 클래스에 구현되어 있던 상태 별 동작 구현 코드가 각 상태의 구현 클래스로 이동
+- Context 클래스는 상태 객체에 기능 수행을 위임하므로써 단순해짐
+
+### 3) 상태 패턴의 이점
+
+- 새로운 상태가 추가되더라도 컨텍스트 코드가 받는 영향은 최소화
+- 상태에 따른 동작을 구현한 코드가 각 상태별로 구분되기 때문에 상태 별 동작을 수정하기가 쉬움
+
+### 4) 상태 변경의 주체
+
+- 위 코드 예제에서는 각 상태 객체에서 컨텍스트의 메서드를 이용해서 상태를 변경하고 있음
+- 상태 변경을 할 수 있는 주체는 컨텍스트와 상태 클래스가 있는데, 어떤 경우에 누가 해야할까?
+
+> Context에서 상태를 변경하는 방식
+> 
+- 비교적 상태 개수가 적고 상태 변경 규칙이 거의 바뀌지 않는 경우
+
+> 상태 객체에서 Context의 상태를 변경하는 방식
+> 
+- 컨텍스트에 영향을 주지 않으면서 상태를 추가하거나 상태 변경 규칙을 바꿀 수 있게 됨
+- 상태 구현 클래스가 많아질수록 상태 변경 규칙을 파악하기 어려워진다.
+- 또한, 한 상태 클래스에서 다른 상태 클래스에 대한 의존이 발생할 수 도 있다.
+
+## 5. 데코레이터(Decorator) 패턴
+
+- 상속은 기능을 확장하는 방법을 제공하지만, 다양한 조합의 기능 확장이 요구될 때 클래스가 불필요하게 증가되는 문제가 발생
+- 이럴 경우 사용할 수 있는 패턴이 ‘데코레이터(Decorator) 패턴’
+- 데코레이터 패턴은 위임을 하는 방식으로 기능 확장
+
+### 1) 데코레이터 패턴 적용하기
+
+> 데코레이터 패턴 설계
+> 
+
+![스크린샷 2022-03-06 오후 11.14.37.png](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/c628bdf5-520e-44bd-a628-80cc3d420f79/스크린샷_2022-03-06_오후_11.14.37.png)
+
+- 인터페이스는 기존 기능을 정의
+- Implementation 클래스는 인터페이스에서 정의한 기능을 구현
+- 기능 확장을 위해 Implementation 클래스를 상속받지 않고 Decorator라는 별도의 추상 클래스를 사용
+- Decorator 클래스는 모든 데코레이터를 위한 기반 기능을 제공하는 추상 클래스
+- Decorator 클래스의 메서드는 생성자를 통해 전달받은 Implementation 객체에 책임을 위임
+
+> Decorator 클래스
+> 
+
+```java
+public abstract class Decorator implements FileOut {
+    private FileOut delegate; // 위임 대상
+
+    // 생성자를 통해 위임 대상 주입
+    public Decorator(FileOut delegate) {
+        this.delegate = delegate;
+    }
+
+    protected void doDelegate(byte[] date) {
+        delegate.write(data); // delegate에 책임 위임
+    }
+}
+```
+
+- 데코레이터 클래스는 생성자를 통해 위임 대상을 주입받는다.
+- 데코레이터 클래스의 메서드를 통해 주입받은 객체에 책임을 위임한다.
+
+> Dacorator 클래스 - 하위 클래스 구현
+> 
+
+```java
+public class EncrpytionOut extends Decorator {
+    // 위임 대상 주입
+    public EncrpytionOut(FileOut delegate) {
+        super(delegate);
+    }
+
+    public void write(Byte[] data) {
+        byte[] encrpytedData = encrpyt(data);
+        super.doDelegate(encrpytedData); // delegate에 책임 위임
+    }
+}
+```
+
+- 데코레이터 클래스를 상속받은 하위 클래스는 자신의 기능을 수행한 두이 상위 클래스의 메서드를 이용해 위임 객체에 전달
+
+### 2) 데코레이터 패턴의 이점
+
+- 데코레이터를 조합하는 방식으로 기능을 확장할 수 있음
+
+```java
+// 기능 조합
+FileOut delegate = enw FileOutImpl();
+FileOut fileOut = new EncrpytionOut(new ZipOut(delegate));
+fileOut.write(data);
+
+// 순서 변경
+// 압축 -> 압호화
+FileOut fileOut = new EncrpytionOut(new ZipOut(delegate));
+// 암호화 -> 압축
+FileOut fileOut = new ZipOut(new EncrpytionOut(delegate));
+```
+
+- 각 확장 기능들의 구현이 별도의 클래스로 분리되기 때문에, 각 확장 기능 및 원래 기능을 서로 영향 없이 변경할 수 있도록 만들어 줌
+- ‘단일 책임 원칙’을 지킬 수 있도록 만들어 줌
+- 스프링 프레임워크의 경우 트랜잭션 처리를 위해 데코레이터 패턴을 사용
+
+### 3) 데코레이터 패턴을 적용할 때 고려할 점
+
+> 데코레이터 대상이 되는 타입의 기능 개수
+> 
+- 정의되어 있는 메서드가 증가하게 되면 그 만큼 데코레이터의 구현도 복잡
+
+> 데코레이터 객체가 비정상적으로 동작할 때 처리 방식
+> 
+- 스프링 프레임워크의 경우 트랜잭션 처리를 위해 데코레이터 패턴을 사용
+- 이 때, 커밋 이후 문제가 발생했다면 이를 익셉션 처리를해야하는가?
+- 클라이언트의 요구는 이미 수행되었기 때문..
+
+### 4) 데코레이터 패턴의 단점
+
+- 사용자 입장에서 데코레이터 객체와 실제 구현 객체의 구분이 되지 않음
+- 따라서, 코드만으로 기능이 어떻게 동작하는지 이해하기 어려움
+
+## 6. 프록시(Proxy) 패턴
+
+- 프록시 패턴은 실제 객체를 대신하는 프록시 객체를 사용해서 실제 객체의 생성이나 접근 등을 제어할 수 있도록 해주는 패턴
+
+### 1) 프록시 객체를 사용할 수 있는 경우
+
+- 어떤 작업이 메모리 낭비와 수행 시간이 길어서 프록시 객체가 해당 작업을 처리해야할 필요가 있는 경우
+- 다른 객체에 접근하기 위해 본인 객체는 은닉하고 프록시 객체를 두고자 하는 경우
+
+> 프록시 패턴 구조
+> 
+
+![스크린샷 2022-03-06 오후 11.54.37.png](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/8d3bfb32-b40e-4dc9-8d20-b0ecf287bd96/스크린샷_2022-03-06_오후_11.54.37.png)
+
+### 2) 프록시 패턴 적용하기
+
+> Case
+> 
+- 쇼핑몰 UI를 구현
+- 상품 리스트를 출력해야하는데 모든 상품 리스트 이미지를 가져오는데 로딩 시간이 오래걸림
+- 현재 스크롤 화면에서 보이는 상품만 데이터를 가져오고 다음 상품은 스크롤을 내렸을 때, 보여주고 싶은 상황
+
+> 설계 구조
+> 
+
+![스크린샷 2022-03-06 오후 11.55.51.png](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/dd245dda-9b60-42c3-b8ae-c0dbe12bf7f3/스크린샷_2022-03-06_오후_11.55.51.png)
+
+- Image 인터페이스는 이미지를 표현하는 기능에 대한 명세
+- ListUI는 Image 타입을 이용해 화면에 이미지를 출력
+- RealImage 클래스는 실제로 이미지 데이터를 로딩해서 메모리에 보관하는 콘크리트 클래스
+- ProxyImage 클래스는 필요 시점까지 이미지를 로딩하지 않고 있다가, 필요하면 RealImage에 해당 기능을 위임
+
+> 프록시 클래스
+> 
+
+```java
+public class ProxyImage implements Image {
+    private String path;
+    private RealImage image;
+
+    public ProxyImage(String path) {
+        this.path = path;
+    }
+
+    public void draw() {
+        if (image == null) {
+            iamge = new RealImage(path) // 최초 접근 시 객체 생성
+        }
+        image.draw(); // RealImage 객체에 위임
+    }
+}
+```
+
+- 프록시 클래스는 필요 시점까지 실제 객체를 생성하지 않음
+- 필요한 시점이 되었을 때, 실제 객체를 생성하고 생성된 객체에 책임을 위임
+- 프록시 클래스를 사용하는 클라이언트 코드는 추상화된 인터페이스를 사용하기 때문에 타입이 실제 클래스인지 프록시 클래스인지 여부는 모름
+- 또한 필요 시점에 대한 정책이 변경되더라도 클라이언트 코드는 영향을 받지 않음
+
+### 3) 프록시 패턴 종류
+
+> 가상 프록시 (Virtual Proxy)
+> 
+- 앞의 예제의 경우 가상 프록시
+- 필요 시점에 실제 객체를 생성
+
+> 보호 프록시 (Protection Proxy)
+> 
+- 실제 객체에 대한 접근을 제어하는 프록시
+- 접근 권한이 있는 경우에만 실제 객체의 메서드를 실행하는 방식으로 구현
+
+> 원격 프록시 (Remote Proxy)
+> 
+- 다른 프로세스에 존재하는 객체에 접근할 때 사용되는 프록시
+
+### 4) 프록시 패턴을 적용할 때 고려할 점
+
+> 객체를 누가 생성할 것인가?
+> 
+- 가상 프록시의 경우 프록시 클래스에서 실제 클래스를 생성
+- 보호 프록시의 경우 프록시 객체를 생성할 때 실제 객체를 전달받음
+
+> 구현 방식 (상속 vs 위임)
+> 
+- 앞의 예제는 위임을 통해 구현
+- 상속 방식의 경우 위임 방식에 비해 구조가 단순
+- 상속 방식의 경우 객체를 생성하는 순간 실제 객체가 생성되기 때문에 가상 프록시를 구현하는데 적합하지 않음
