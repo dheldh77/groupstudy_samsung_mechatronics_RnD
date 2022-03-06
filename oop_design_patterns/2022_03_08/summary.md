@@ -44,7 +44,7 @@ public class Calculator {
 > 전략 패턴 적용
 > 
 
-![스크린샷 2022-03-06 오후 12.01.53.png](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/277190e5-c70b-44ee-a0c2-b281a7361e66/스크린샷_2022-03-06_오후_12.01.53.png)
+![Strategy Pattern](https://github.com/dheldh77/groupstudy_samsung_mechatronics_RnD/blob/master/oop_design_patterns/2022_03_08/StrategyPattern.png)
 
 - 인터페이스(Strategy)로 계산 정책을 추상화
 - 콘크리트 클래스(Strategy Concrete)에서 상황에 맞는 계산 정책을 제공
