@@ -29,4 +29,5 @@
 |2022-02-22|[~05.설계 원칙: SOLID](https://github.com/dheldh77/groupstudy_samsung_mechatronics_RnD/blob/master/oop_design_patterns/2022_02_22/2022_02_22.md)|한소희, 김정미, 김태수, 김민석, 박준혁|
 |2022-03-02|[~06.DI(dependency Injection)와 서비스 로케이터](https://github.com/dheldh77/groupstudy_samsung_mechatronics_RnD/blob/master/oop_design_patterns/2022_03_02/2022_03_02.md)|한소희, 김태수, 김민석, 박준혁|
 |2022-03-08|[~07.주요 디자인 패턴(~프록시 패턴)](https://github.com/dheldh77/groupstudy_samsung_mechatronics_RnD/blob/master/oop_design_patterns/2022_03_08/2022_03_08.md)|한소희, 김태수, 김정미, 김민석, 박준혁|
-|2022-03-14|[~07.주요 디자인 패턴(~미디에이터 패턴)](https://github.com/dheldh77/groupstudy_samsung_mechatronics_RnD/blob/master/oop_design_patterns/2022_03_14/2022_03_14.md)||
+|2022-03-14|[~07.주요 디자인 패턴(~미디에이터 패턴)](https://github.com/dheldh77/groupstudy_samsung_mechatronics_RnD/blob/master/oop_design_patterns/2022_03_14/2022_03_14.md)|한소희, 김태수, 김정미, 김민석, 박준혁|
+|2022-03-22|[~07.주요 디자인 패턴(~널 패턴)](https://github.com/dheldh77/groupstudy_samsung_mechatronics_RnD/blob/master/oop_design_patterns/2022_03_22/2022_03_22.md)||
