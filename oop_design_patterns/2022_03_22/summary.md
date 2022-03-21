@@ -242,3 +242,172 @@ public class Factory {
 - 프로토타입 방식은 생성할 객체의 원형 객체를 등록하고, 객체 생성 요청이 있으면 원형 객체를 ‘복제'해서 생성
 - 객체 군 마다 팩토리 클래스를 작성할 필요 없이 팩토리 객체를 생성
 - 프로토타입 방식을 사용하면 추상 팩토리 타입과 콘크리트 팩토리 클래스를 따로 만들 필요가 없어 구현이 쉽지만, 제품 객체의 생성 규칙이 복잡할 경우 적용할 수 없는 한계
+
+## 12. 컴포지트 (Composite) 패턴
+
+- 컴포지트 패턴은 단일 객체와 그 객체들을 가지는 집합 객체를 같은 타입으로 취급하며, 트리 구조로 객체들을 엮는 패턴
+
+### 1) 컴포지트 패턴 적용하기
+
+> 컴포지트 패턴을 적용할 수 있는 경우
+> 
+
+![스크린샷 2022-03-21 오후 8.17.59.png](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/55e22683-56ac-45f6-966e-d77a05d8a168/스크린샷_2022-03-21_오후_8.17.59.png)
+
+```java
+public class PowerController {
+    public void turnOn (Long deviceId) {
+        Device device = findDeviceById(deviceId);
+        device.turnOn();
+    }
+    
+    // turnGroupOn과 turnOn()은 개별/그룹 차이를 빼면 동일한 기능
+    public void turnGroupOn(Long groupId) {
+        DeviceGroup group = findGroupById(groupId);
+        group.turnAllOn();
+    }
+}
+```
+
+- 위 코드는 단일 객체나 집합 객체에 하는 동작은 동일한 동작임에도 불구하고 구분해서 처리
+- 추가적인 기능이 생길 때 마다, 단일 객체와 집합 객체에 동일한 동작을 하는 코드 블록이 생기게 됨
+
+> 컴포지트 패턴 적용하기
+> 
+
+![스크린샷 2022-03-21 오후 8.12.56.png](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/2c131530-329b-4a21-8237-99dfef2db754/스크린샷_2022-03-21_오후_8.12.56.png)
+
+- 컴포지트 패턴은 위의 경우를 단일-집합을 구성하는 클래스가 동일 인터페이스로 구현하도록 만듦으로써 해결
+- 즉, 단일(Aircon, Light 등)을 집합(DeviceGroup)를 한 개의 인터페이스로 추상화
+
+> 컴포지트(집합 객체)의 책임
+> 
+- 컴포넌트(단일 객체) 그룹 관리
+- 컴포지트(집합 객체)에 기능 실행을 요청하면, 포함하고 있는 컴포넌트(단일 객체)들에게 기능 실행 요청을 위임
+
+> 컴포지트 객체 정의
+> 
+
+```java
+public class DeviceGroup extends Device{
+    private List<Device> devices = new ArrayList<Device>();
+    
+    public void add (Device d) {
+        devices.add(d);
+    }
+    
+    public void remove (Device d) {
+        devices.remove(d);
+    }
+    
+    public void turnOn() {
+        for (Device device : devices)
+            device.turnOn(); // 관리하는 단일 객체들에게 실행 위임
+    }
+    
+    public void turnOff() {
+        for (Device device : devices)
+            device.turnOff(); // 관리하는 단일 객체들에게 실행 위임
+    }
+}
+```
+
+- add()와 remove() 메서드는 컴포지트 객체가 관리할 컴포넌트 객체의 목록을 관리
+- turnOn()과 turnOff() 메서드는 컴포지트 객체가 관리하고 있는 컴포넌트 객체들에게 기능 실행을 위임
+
+> 컴포지트 객체 사용
+> 
+
+```java
+Device aircon = new Aircon();
+Device light = new Light();
+DeviceGroup group = new DeviceGroup();
+group.add(aircon);
+group.add(light);
+
+group.turnOn(); // aircon1과 light의 turnOn() 실행
+```
+
+- 집합 객체를 사용하려면 집합 객체에 단일 객체를 추가하고 메서드를 실행하므로써 단일 객체에 기능 실행을 위임
+
+### 2) 컴포지트 객체의 장점
+
+- 집합 객체인지 단일 객체인지 상관없이 클라이언트는 단일 인터페이스로 기능을 실행할 수 있음
+
+```java
+public class PowerController {
+    public void turnOn (Long deviceId) {
+        Device device = findDeviceById(deviceId);
+        device.turnOn();
+    }
+
+//    컴포넌트 패턴을 사용함으로써 아래 코드는 제거
+//    // turnGroupOn과 turnOn()은 개별/그룹 차이를 빼면 동일한 기능
+//    public void turnGroupOn(Long groupId) {
+//        DeviceGroup group = findGroupById(groupId);
+//        group.turnAllOn();
+//    }
+}
+```
+
+- 컴포지트 자체도 컴포넌트이기 때문에, 컴포지트에 다른 컴포지트를 등록할 수 있음
+
+```java
+DeviceGroup firstFloorLightGroup = new DeviceGroup();
+DeviceGroup secondFlooerLigthtGroup = new DeviceGroup();
+
+for(int i = 0; i < 10; i++) 
+    firstFloorLightGroup.add(new Light());
+for(int i = 0; i < 10; i++)
+    secondFlooerLigthtGroup.add(new Light());
+
+DeviceGroup allLightGroup = new DeviceGroup();
+allLightGroup.add(firstFloorLightGroup);
+allLightGroup.add(secondFlooerLigthtGroup);
+
+allLightGroup.turnOn();
+```
+
+### 3) 컴포지트 패턴 구현의 고려 사항
+
+- 컴포넌트를 관리하는 인터페이스를 어디서 구현할 것인지에 대한 여부
+- 컴포지트에 인터페이스를 정의할 경우 컴포넌트 그룹을 만들어야하는 컴포지트 타입에 직접 접근해야하는 상황이 발생
+- 컴포넌트 타입에 컴포넌트를 관리하는 인터페이스를 추가하면, 클라이언트 입장에서 컴포지트 타입을 사용하지 않고도 그룹을 생성할 수 있게 됨
+- 다만, 컴포넌트 타입에 컴포넌트를 관리하는 인터페이스(add(), remove())를 정의할 경우, 컴포넌트 클래스에서 해당 메서드는 정상적으로 동작하면 안됨
+- 따라서, 컴포넌트 타입에 이들 기능에 익셉션 코드를 추가하고 컴포넌트 클래스에서 알맞게 재정의 하도록 구현할 수 있을 것
+- 또한, 해당 익셉션을 발생시키는 방법 외에도 해당 객체가 컴포넌트를 관리할 수 있는지 체크하는 메서드를 인터페이스에 추가하는 방법도 있음
+
+```java
+public abstract class Device {
+    public void add(Device d) {
+        throw new CanNotAddException("추가할 수 없음");
+    }
+
+    public void remove(Device d) {
+        // nothing
+    }
+
+    public abstract void turnOn();
+    public abstract void turnOff();
+}
+```
+
+- 컴포넌트 클래스에 컴포넌트를 관리하는 인터페이스 추가
+
+```java
+public class DeviceGroup extends Device{
+    @Override
+    public void turnOn() {
+        for (Device device : devices)
+            device.turnOn(); // 관리하는 단일 객체들에게 실행 위임
+    }
+
+    @Override
+    public void turnOff() {
+        for (Device device : devices)
+            device.turnOff(); // 관리하는 단일 객체들에게 실행 위임
+    }
+}
+```
+
+- 컴포지트 클래스에서 컴포넌트를 관리하는 메서드를 알맞게 재정의
