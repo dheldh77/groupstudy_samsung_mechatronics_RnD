@@ -411,3 +411,86 @@ public class DeviceGroup extends Device{
 ```
 
 - 컴포지트 클래스에서 컴포넌트를 관리하는 메서드를 알맞게 재정의
+
+## 13. 널(Null) 객체 패턴
+
+- 널 객체 패턴은 null을 리턴하는 대신 또 다른 객체를 리턴함으로써 null 검사 코드를 없앨 수 있도록 하는 패턴
+
+> Null 객체 패턴 구현
+> 
+- null 대신 사용될 클래스를 구현. 이 클래스는 상위 타입을 상속받으며, 아무 기능도 수행하지 않음
+- null을 리턴하는 대신, null을 대체할 클래스의 객체를 리턴
+
+### 1) Null 객체 패턴 적용하기
+
+> Null 객체 패턴을 적용할 수 있는 경우
+> 
+
+```java
+public class Bill {
+    public Bill createBill(Customer customer) {
+        Bill bill = new Bill();
+        // 사용 내역 추가
+        bill.addItem(new Item("통신비", price));
+        bill.addItem(new Item("카드값", price));
+        
+        // 특별 할인 내역 추가
+        SpecialDiscount specialDiscount = specialDiscountFactory.create(customer);
+        if (specialDiscount != null) {
+            // 특별 할인 대상인 경우만 처리
+            specialDiscount.addDetailTo(bill);
+        }
+    }
+}
+```
+
+- 위 코드는 null 검사 코드를 사용
+- null 검사 코드를 사용하게 되면 개발자가 검사 코드를 빼 먹기 쉽다는 단점이 있음
+- 여러 코드에서 한 객체에 대한 null 검사를 하게 되면 null 검사 코드를 누락하기 쉬움
+- 이는 프로그램 실행 도중 NullPointException을 발생 시킬 가능성을 높임
+
+> Null 을 대신할 클래스 정의
+> 
+
+```java
+public class NullSpecialDiscount extends SpecialDiscount {
+    @Override
+    public void addDetailTo(Bill bill) {
+        // nothing
+    }
+}
+```
+
+> Null 객체 사용
+> 
+
+```java
+public class SpecialDiscountFactory {
+    public SpecialDiscount create(Customer customer) {
+        if (checkNewCustomer(customer))
+            return new NewCustomerSpecialDiscount();
+        // 다른 코드
+
+        // 해당하는 경우가 없을 때, null을 대체할 객체 반환
+        return new NullSpecialDiscount();
+    }
+}
+```
+
+```java
+public Bill createBill(Customer customer) {
+        Bill bill = new Bill();
+        // 사용 내역 추가
+        bill.addItem(new Item("통신비", price));
+        bill.addItem(new Item("카드값", price));
+
+        // 특별 할인 내역 추가
+        SpecialDiscount specialDiscount = specialDiscountFactory.create(customer);
+        specialDiscount.addDetailTo(bill);
+    }
+```
+
+### 2) Null 객체 패턴의 장점
+
+- null 검사 코드를 사용할 필요가 없기 때문에 코드가 간결
+- 코드 가독성을 높여주고 코드 수정의 유연성을 얻을 수 있음
