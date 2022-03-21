@@ -6,14 +6,14 @@
 > 파사드 패턴 구조
 > 
 
-![스크린샷 2022-03-21 오전 11.07.31.png](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/5199c2e9-952b-4da3-9e4b-fc1cb1f06f6e/스크린샷_2022-03-21_오전_11.07.31.png)
+![facade1.png](https://github.com/dheldh77/groupstudy_samsung_mechatronics_RnD/blob/master/oop_design_patterns/2022_03_22/facade1.png)
 
 ### 1) 파사드 패턴 적용하기
 
 > 파사드 패턴을 적용할 수 있는 경우
 > 
 
-![스크린샷 2022-03-21 오전 11.05.35.png](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/6be77961-f5a1-42ab-b908-56a528cc5361/스크린샷_2022-03-21_오전_11.05.35.png)
+![facade2.png](https://github.com/dheldh77/groupstudy_samsung_mechatronics_RnD/blob/master/oop_design_patterns/2022_03_22/facade2.png)
 
 - 위와 같은 설계 구조의 코드가 있다고 생각하자
 - 위 설계 구조에서는 세 개의 클래스에서 동일한 Dao에 접근하면서 ‘코드 중복’과 ‘직접적인 의존'이라는 문제점을 가지고 있다.
@@ -21,7 +21,7 @@
 > 파사드 패턴 적용하기
 > 
 
-![스크린샷 2022-03-21 오전 11.17.09.png](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/e61422ac-8d7e-4e8d-82de-ddaedfde52c1/스크린샷_2022-03-21_오전_11.17.09.png)
+![facade3.png](https://github.com/dheldh77/groupstudy_samsung_mechatronics_RnD/blob/master/oop_design_patterns/2022_03_22/facade3.png)
 
 - 파사드를 이용해서 ‘코드 중복'과 ‘직접적인 의존’을 해결
 - 위 설계에서 ‘EmpReportDaoFacade(파사드)는 서브 시스템에 속한 각 Dao를 이용해 클라이언트가 원하는 데이터를 제공하기 위한 인터페이스를 제공
@@ -58,7 +58,7 @@
 > Shooting Game’s enemy
 > 
 
-![스크린샷 2022-03-21 오후 2.20.00.png](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/3bd41c61-9235-45ec-98bd-4e86e56229fd/스크린샷_2022-03-21_오후_2.20.00.png)
+![factory1.png](https://github.com/dheldh77/groupstudy_samsung_mechatronics_RnD/blob/master/oop_design_patterns/2022_03_22/factory1.png)
 
 ```bash
 
@@ -102,7 +102,7 @@ public class Stage {
 - 위 예시에서 클라이언트 클래스로부터 객체 생성 책임을 분리하는 것이 추상 팩토리 패턴
 - 추상 팩토리(Abstract Factory) 패턴에서는 관련된 객체 군을 생성하는 책임을 갖는 타입을 별도로 분리
 
-![스크린샷 2022-03-21 오후 2.49.27.png](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/0706091e-cd79-4f83-89f8-c5cd66b97c18/스크린샷_2022-03-21_오후_2.49.27.png)
+![factory2.png](https://github.com/dheldh77/groupstudy_samsung_mechatronics_RnD/blob/master/oop_design_patterns/2022_03_22/factory2.png)
 
 - 추상 팩토리 클래스는 객체 생성 메서드를 선언하는 추상 타입으로 팩토리에 해당
 - 추상 팩토리 클래스의 getFactory() 메서드는 정적 메서드로써 파라미터로 전달받은 레벨에 따라 알맞은 객체를 리턴하도록 정의
