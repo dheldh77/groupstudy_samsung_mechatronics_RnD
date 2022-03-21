@@ -252,7 +252,7 @@ public class Factory {
 > 컴포지트 패턴을 적용할 수 있는 경우
 > 
 
-![스크린샷 2022-03-21 오후 8.17.59.png](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/55e22683-56ac-45f6-966e-d77a05d8a168/스크린샷_2022-03-21_오후_8.17.59.png)
+![composite.png](https://github.com/dheldh77/groupstudy_samsung_mechatronics_RnD/blob/master/oop_design_patterns/2022_03_22/composite.png)
 
 ```java
 public class PowerController {
@@ -275,7 +275,7 @@ public class PowerController {
 > 컴포지트 패턴 적용하기
 > 
 
-![스크린샷 2022-03-21 오후 8.12.56.png](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/2c131530-329b-4a21-8237-99dfef2db754/스크린샷_2022-03-21_오후_8.12.56.png)
+![ᄉcomposite2.png](https://github.com/dheldh77/groupstudy_samsung_mechatronics_RnD/blob/master/oop_design_patterns/2022_03_22/composite2.png)
 
 - 컴포지트 패턴은 위의 경우를 단일-집합을 구성하는 클래스가 동일 인터페이스로 구현하도록 만듦으로써 해결
 - 즉, 단일(Aircon, Light 등)을 집합(DeviceGroup)를 한 개의 인터페이스로 추상화
