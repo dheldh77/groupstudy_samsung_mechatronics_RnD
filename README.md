@@ -7,7 +7,7 @@
 
 ## :green_book: 2. Topic
 - [개발자가 반드시 정복해야 할 객체 지향과 디자인 패턴](https://github.com/dheldh77/groupstudy_samsung_mechatronics_RnD/blob/master/oop_design_patterns/oop_design_pattern.md)
-- [이펙티브 자바]()
+- [이펙티브 자바](https://github.com/dheldh77/groupstudy_samsung_mechatronics_RnD/blob/master/effective_java/effective_java.md)
 
 ## 👍 3. Rule
 - 과제 공유는 자유롭게
