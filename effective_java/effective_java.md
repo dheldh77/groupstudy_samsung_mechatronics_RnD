@@ -19,7 +19,12 @@
 - [ ] 12장. 직렬화
 <br/>
 
-## :couple: 3. Progress
+## 👍 3. Rule
+- 진도 : 일주일에 참여 가능한 스터디원 수 X 2 items
+- 내용정리 : 각자 맡은 item을 2022-**-**.md에 작성 (notion 링크는 하지 말 것)
+
+
+## :couple: 4. Progress
 |Date|Topic|Attandent|
 |------|---|---|
 |날짜|[챕터]()|참여자|
