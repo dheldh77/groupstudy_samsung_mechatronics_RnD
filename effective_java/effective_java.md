@@ -27,4 +27,4 @@
 ## :couple: 4. Progress
 |Date|Topic|Attandent|
 |------|---|---|
-|2022-04-13|[item 1 ~ 10](https://github.com/dheldh77/groupstudy_samsung_mechatronics_RnD/tree/master/effective_java/2022-04-12)||
+|2022-04-13|[item 1 ~ 10](https://github.com/dheldh77/groupstudy_samsung_mechatronics_RnD/blob/master/effective_java/2022-04-12/2022-04-12.md)||
